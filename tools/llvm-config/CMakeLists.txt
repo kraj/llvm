@@ -62,7 +62,7 @@ add_definitions(-DCMAKE_CFG_INTDIR="${CMAKE_CFG_INTDIR}")
 # Add the dependency on the generation step.
 add_file_dependencies(${CMAKE_CURRENT_SOURCE_DIR}/llvm-config.cpp ${BUILDVARIABLES_OBJPATH})
 
-if(CMAKE_CROSSCOMPILING)
+if(CMAKE_CROSSCOMPILING1)
   set(${project}_LLVM_CONFIG_EXE "${LLVM_NATIVE_BUILD}/bin/llvm-config")
   set(${project}_LLVM_CONFIG_EXE ${${project}_LLVM_CONFIG_EXE} PARENT_SCOPE)
 
@@ -76,4 +76,4 @@ if(CMAKE_CROSSCOMPILING)
   add_dependencies(${project}NativeLLVMConfig CONFIGURE_LLVM_NATIVE)
 
   add_dependencies(llvm-config ${project}NativeLLVMConfig)
-endif(CMAKE_CROSSCOMPILING)
+endif(CMAKE_CROSSCOMPILING1)
