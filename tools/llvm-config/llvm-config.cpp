@@ -225,6 +225,13 @@ Typical components:\n\
 
 /// \brief Compute the path to the main executable.
 std::string GetExecutablePath(const char *Argv0) {
+  // Hack for Yocto: we need to override the root path when we are using
+  // llvm-config from within a target sysroot.
+  const char *Sysroot = std::getenv("YOCTO_ALTERNATE_EXE_PATH");
+  if (Sysroot != nullptr) {
+    return Sysroot;
+  }
+
   // This just needs to be some symbol in the binary; C++ doesn't
   // allow taking the address of ::main however.
   void *P = (void *)(intptr_t)GetExecutablePath;
@@ -306,12 +313,20 @@ int main(int argc, char **argv) {
   std::string ActivePrefix, ActiveBinDir, ActiveIncludeDir, ActiveLibDir,
               ActiveCMakeDir;
   std::string ActiveIncludeOption;
+  // Hack for Yocto: we need to override the multilib path when we are using
+  // llvm-config from within a target sysroot.
+  std::string Multilibdir = std::getenv("YOCTO_ALTERNATE_MULTILIB_NAME");
+  if (Multilibdir.empty()) {
+    Multilibdir = "/lib" LLVM_LIBDIR_SUFFIX;
+  }
+
   if (IsInDevelopmentTree) {
     ActiveIncludeDir = std::string(LLVM_SRC_ROOT) + "/include";
     ActivePrefix = CurrentExecPrefix;
 
     // CMake organizes the products differently than a normal prefix style
     // layout.
+
     switch (DevelopmentTreeLayout) {
     case CMakeStyle:
       ActiveBinDir = ActiveObjRoot + "/bin";
@@ -336,7 +351,7 @@ int main(int argc, char **argv) {
     SmallString<256> path(StringRef(LLVM_TOOLS_INSTALL_DIR));
     sys::fs::make_absolute(ActivePrefix, path);
     ActiveBinDir = path.str();
-    ActiveLibDir = ActivePrefix + "/lib" + LLVM_LIBDIR_SUFFIX;
+    ActiveLibDir = ActivePrefix + Multilibdir;
     ActiveCMakeDir = ActiveLibDir + "/cmake/llvm";
     ActiveIncludeOption = "-I" + ActiveIncludeDir;
   }
