@@ -15,7 +15,7 @@
 
 declare float @llvm.powi.f32(float, i32)
 
-define float @f(float %f, i32 %i) {
+define float @powi_f32(float %f, i32 %i) {
 entry:
   %0 = call float @llvm.powi.f32(float %f, i32 %i)
   ret float %0
@@ -28,7 +28,7 @@ entry:
 
 declare double @llvm.powi.f64(double, i32)
 
-define double @g(double %d, i32 %i) {
+define double @powi_f64(double %d, i32 %i) {
 entry:
   %0 = call double @llvm.powi.f64(double %d, i32 %i)
   ret double %0
@@ -39,3 +39,24 @@ entry:
 ; CHECK-TO-SOFT: vmov d0, r0, r1
 ; CHECK-TO-HARD: vmov r0, r1, d0
 
+declare float @llvm.floor.f32(float)
+
+define float @floor_f32(float %f) {
+entry:
+  %0 = call float @llvm.floor.f32(float %f)
+  ret float %0
+}
+
+; CHECK-MATCH: b floorf
+; CHECK-MISMATCH: b floorf
+
+declare double @llvm.floor.f64(double)
+
+define double @floor_f64(double %d) {
+entry:
+  %0 = call double @llvm.floor.f64(double %d)
+  ret double %0
+}
+
+; CHECK-MATCH: b floor
+; CHECK-MISMATCH: b floor
