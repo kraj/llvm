@@ -186,6 +186,8 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
 
   if (!Subtarget->isTargetDarwin() && !Subtarget->isTargetIOS() &&
       !Subtarget->isTargetWatchOS()) {
+    // Most builtins have their calling convention determined by the
+    // target (they don't vary with -float-abi).
     const auto &E = Subtarget->getTargetTriple().getEnvironment();
 
     bool IsHFTarget = E == Triple::EABIHF || E == Triple::GNUEABIHF ||
@@ -199,6 +201,75 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
       setLibcallCallingConv(static_cast<RTLIB::Libcall>(LCID),
                             IsHFTarget ? CallingConv::ARM_AAPCS_VFP
                                        : CallingConv::ARM_AAPCS);
+
+    // Builtins provided by libm have their calling convention determined by
+    // -float-abi.
+    bool IsHFMode = TM.Options.FloatABIType == FloatABI::Hard;
+    CallingConv::ID LibmConv = IsHFMode ? CallingConv::ARM_AAPCS_VFP
+                                        : CallingConv::ARM_AAPCS;
+    setLibcallCallingConv(RTLIB::REM_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::REM_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::REM_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::FMA_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::FMA_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::FMA_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::SQRT_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::SQRT_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::SQRT_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG2_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG2_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG2_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG10_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG10_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::LOG10_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP2_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP2_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::EXP2_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::SIN_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::SIN_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::SIN_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::COS_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::COS_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::COS_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::SINCOS_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::SINCOS_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::SINCOS_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::POW_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::POW_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::POW_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::CEIL_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::CEIL_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::CEIL_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::TRUNC_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::TRUNC_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::TRUNC_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::RINT_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::RINT_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::RINT_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::NEARBYINT_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::NEARBYINT_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::NEARBYINT_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::ROUND_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::ROUND_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::ROUND_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::FLOOR_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::FLOOR_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::FLOOR_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::COPYSIGN_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::COPYSIGN_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::COPYSIGN_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::FMIN_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::FMIN_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::FMIN_F128, LibmConv);
+    setLibcallCallingConv(RTLIB::FMAX_F32, LibmConv);
+    setLibcallCallingConv(RTLIB::FMAX_F64, LibmConv);
+    setLibcallCallingConv(RTLIB::FMAX_F128, LibmConv);
   }
 
   if (Subtarget->isTargetMachO()) {
